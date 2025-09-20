@@ -1,0 +1,21 @@
+{
+  "name": "click2csv",
+  "version": "1.0.0",
+  "description": "CLICK2CSV – Open, edit, and export CSV files with ease.",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"No tests specified\" && exit 0",
+    "build": "echo \"No build process needed for browser extension\" && exit 0",
+    "lint": "echo \"No linting configured\" && exit 0"
+  },
+  "keywords": [
+    "csv",
+    "browser-extension",
+    "data",
+    "export"
+  ],
+  "author": "jeanpaul",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {}
+}
