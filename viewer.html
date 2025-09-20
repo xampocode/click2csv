@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>CSV Viewer</title>
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none';">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --chip: #f3f4f6;
+      --border: #e5e7eb;
+      --header-bg: #ffffff;
+      --row-hover: #f9fafb;
+      --accent: #f97316;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b0f14;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --chip: #111827;
+        --border: #1f2937;
+        --header-bg: #0f1620;
+        --row-hover: #0d131b;
+        --accent: #fb923c;
+      }
+    }
+    /* Manual override via data-theme */
+    :root[data-theme="light"] {
+      --bg: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --chip: #f3f4f6;
+      --border: #e5e7eb;
+      --header-bg: #ffffff;
+      --row-hover: #f9fafb;
+      --accent: #f97316;
+    }
+    :root[data-theme="dark"] {
+      --bg: #0b0f14;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --chip: #1c1c1e;
+      --border: #2c2c31;
+      --header-bg: #1c1c1e;
+      --row-hover: #16161a;
+      --accent: #fb923c;
+    }
+
+    * { box-sizing: border-box; }
+    body { font: 14px system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+    header { padding: 8px 12px; display:flex; flex-wrap: wrap; gap:8px; align-items:center; border-bottom:1px solid var(--border); position: sticky; top: 0; background: var(--header-bg); z-index: 2; overflow: visible; backdrop-filter: blur(12px); }
+    .toolbar { display:flex; flex-wrap: wrap; gap:8px; align-items:center; width: 100%; }
+    #tableWrap { height: calc(100vh - 56px); overflow:auto; }
+    table { border-collapse: collapse; width: 100%; position: relative; }
+    th, td { border-bottom: 1px solid var(--border); padding: 6px 8px; white-space: nowrap; }
+    th { position: sticky; top: 0; background: var(--header-bg); z-index: 20; user-select: none; }
+    .btn { padding:6px 10px; border:1px solid var(--border); border-radius:8px; cursor:pointer; background: var(--chip); color: var(--text); }
+    .status { color: var(--muted); flex:1 1 200px; min-width: 200px; display:flex; justify-content:center; }
+    .version { color: var(--muted); font-size: 12px; letter-spacing: 0.4px; }
+    .brand-link { color: var(--accent); text-decoration:none; font-weight:500; white-space:nowrap; margin-left:12px; }
+    .brand-link:hover { text-decoration: underline; }
+    input[type="file"] { display:none; }
+    .chip { padding:6px 8px; border-radius: 8px; background: var(--chip); border:1px solid var(--border); color: var(--text); }
+    .controls label { display:flex; align-items:center; gap:6px; }
+    .controls input[type="text"], .controls input[type="number"] { width: 80px; }
+    .drop-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.18); border: 2px dashed var(--muted); display: none; align-items: center; justify-content: center; font-size: 18px; color: var(--text); z-index: 10; padding: 20px; text-align:center;}
+    .drop-overlay.active { display: flex; }
+    .resizer { position: absolute; right: 0; top: 0; width: 6px; height: 100%; cursor: col-resize; user-select: none; }
+    td.freeze, th.freeze { background: var(--header-bg); box-shadow: 1px 0 0 var(--border); }
+    tr td.freeze { position: sticky; left: 0; z-index: 10; background: var(--bg); box-shadow: 1px 0 0 var(--border); }
+    tbody tr:hover td { background: var(--row-hover); }
+    th.dragging { opacity: 0.6; }
+  
+    tbody{ background: var(--bg); }
+    td.freeze, th.freeze { background: var(--header-bg); box-shadow: 1px 0 0 var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="toolbar">
+      <button class="btn" id="openFileBtn" type="button">Open CSV</button>
+      <input id="fileInput" type="file" accept=".csv,text/csv" />
+      <input class="chip" id="urlInput" type="text" placeholder="Paste CSV URL and press Load" style="min-width:340px;">
+      <button class="btn" id="loadUrlBtn" type="button">Load</button>
+      <div class="controls chip">
+        <label>Delimiter:
+          <select id="delimiter">
+            <option value="auto" selected>Auto</option>
+            <option value=",">Comma (,)</option>
+            <option value=";">Semicolon (;)</option>
+            <option value="\t">Tab</option>
+            <option value="|">Pipe (|)</option>
+          </select>
+        </label>
+      </div>
+      <div class="controls chip">
+        <label><input type="checkbox" id="hasHeader" checked> Header row</label>
+      </div>
+      <div class="controls chip">
+        <label>Freeze columns: <input id="freezeCount" type="number" min="0" value="0"></label>
+      </div>
+      <div class="controls chip">
+        <label>Search: <input id="searchBox" type="text" placeholder="type to filter"></label>
+      </div>
+      <button class="btn" id="reparseBtn" type="button" title="Re-parse with current settings">Reparse</button>
+      <button class="btn" id="editToggle" type="button" title="Toggle edit mode">Edit: Off</button>
+      <div class="controls chip"><label>Export:
+        <select id="exportKind">
+          <option value="csv" selected>CSV</option>
+          <option value="json">JSON</option>
+          <option value="xml">Excel XML (.xml)</option>
+        </select></label>
+      </div>
+      <button class="btn" id="exportBtn" type="button" title="Download file">Download</button>
+      <button class="btn" id="themeBtn" type="button" title="Toggle theme">🌙</button>
+      <button class="btn" id="resetBtn" type="button" title="Reset settings">Reset</button>
+      <span id="status" class="status"></span>
+      <span id="versionLabel" class="version">v0.0.0</span>
+      <a id="brandLink" class="brand-link" href="https://www.4s.lu/" target="_blank" rel="noopener noreferrer">www.4s.lu</a>
+    </div>
+  </header>
+  <div class="drop-overlay" id="dropOverlay">Drop a CSV <b>file</b> or <b>URL</b> here to view</div>
+  <div id="tableWrap"><table id="table"><colgroup></colgroup><thead></thead><tbody></tbody></table></div>
+  <script src="viewer.js"></script>
+</body>
+</html>

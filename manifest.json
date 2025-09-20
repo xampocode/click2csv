@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "CLICK2CSV",
+  "version": "1.0.0",
+  "description": "CLICK2CSV \u2013 Open, edit, and export CSV files with ease.",
+  "permissions": [
+    "contextMenus",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "CLICK2CSV \u2013 Open CSV Viewer",
+    "default_icon": {
+      "16": "icons/16.png",
+      "48": "icons/48.png",
+      "128": "icons/128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png",
+    "512": "icons/512.png"
+  }
+}
