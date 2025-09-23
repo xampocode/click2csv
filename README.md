@@ -7,13 +7,15 @@ CLICK2CSV is a Chrome Extension that opens CSV files in a dedicated viewer with 
 - **CSV ingestion**: Load files from disk, supply a URL, or drag & drop files/links onto the viewer.
 - **Delimiter handling**: Auto-detects delimiter with manual override for comma, semicolon, tab, or pipe.
 - **Header support**: Toggle header-row detection; auto-generates column names when headers are absent.
-- **Column operations**: Freeze leading columns, reorder via drag & drop, resize with draggable handles, and sort ascending/descending per column.
+- **Column operations**: Freeze leading columns, reorder via drag & drop, resize with draggable handles, hide/show individual columns, auto-expand columns to fit content width, and sort ascending/descending per column.
+- **Row operations**: Freeze leading rows to keep them visible while scrolling, resize individual row heights with draggable handles, and auto-expand rows to fit content.
 - **Virtualized table**: Efficiently renders large datasets with spacer rows and sticky headers/frozen cells.
-- **Search filter**: Live text filter scans visible columns respecting the current column order.
+- **Advanced search**: Multi-word search with AND/OR logic, real-time highlighting of search terms in results, and smart term analysis.
 - **Edit mode**: Optional inline editing for cell contents; edits persist in memory for export.
 - **Exports**: Download the current view as CSV (respecting delimiter), JSON, or Excel-compatible XML.
 - **Theme control**: Light/dark themes with manual toggle, system preference detection, and persistence via `chrome.storage`.
-- **State persistence**: Remembers theme, freeze count, and column ordering between sessions.
+- **State persistence**: Remembers theme, column freeze count, row freeze count, column ordering, hidden columns, row auto-expand mode, column auto-expand mode, individual row heights, and calculated column widths between sessions.
+- **Beta feedback system**: Comprehensive feedback collection with automatic error logging, performance monitoring, and GitHub Issues integration.
 - **Reset flow**: Reset button clears stored preferences and reloads with a confirmation flash message.
 - **Context menus**: Background service worker adds "Open in CSV Viewer" (links) and "Open page as CSV in Viewer" (pages).
 - **Version + branding**: Toolbar displays extension version (read from manifest) and a link to `www.4s.lu`.
@@ -35,7 +37,13 @@ icons/        # Extension icons (16, 48, 128, 512)
 ## Storage Keys
 - `csv_viewer_theme` – persisted theme override (`"light"`/`"dark"`).
 - `csv_viewer_freeze` – number of frozen columns.
+- `csv_viewer_freezeRow` – number of frozen rows.
 - `csv_viewer_colOrder` – array of column indexes representing the current order.
+- `csv_viewer_hiddenColumns` – array of hidden column indexes.
+- `csv_viewer_autoExpand` – boolean for auto-expand row mode.
+- `csv_viewer_autoExpandCols` – boolean for auto-expand column mode.
+- `csv_viewer_rowHeights` – object mapping row indexes to custom heights.
+- `csv_viewer_colAutoWidths` – object mapping column indexes to calculated widths.
 
 ## Build & Load
 1. Open `chrome://extensions/`.

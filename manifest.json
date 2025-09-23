@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "CLICK2CSV",
-  "version": "1.0.0",
-  "description": "CLICK2CSV \u2013 Open, edit, and export CSV files with ease.",
+  "version": "1.1.0",
+  "description": "Professional CSV viewer with search, freezing, resizing, themes, and export to CSV/JSON/Excel. Perfect for data analysis.",
   "permissions": [
     "contextMenus",
     "storage"
